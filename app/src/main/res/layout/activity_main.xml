@@ -52,6 +52,26 @@
         app:layout_constraintTop_toBottomOf="@id/ll_header">
 
         <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/tf_fname_layout"
+            style="@style/RoundedTextInputStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            app:hintEnabled="false"
+            app:cursorColor="@color/white"
+            >
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/tf_fname"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/white"
+                android:textColorHint="@color/gray"
+                android:textSize="16sp"
+                android:hint="fullname" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/tf_username_layout"
             style="@style/RoundedTextInputStyle"
             android:layout_width="match_parent"
