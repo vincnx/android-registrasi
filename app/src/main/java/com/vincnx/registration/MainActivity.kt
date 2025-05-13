@@ -3,115 +3,77 @@ package com.vincnx.registration
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
-import android.view.ViewGroup
-import android.widget.Button
 import android.widget.EditText
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.marginBottom
+import androidx.core.widget.doAfterTextChanged
+import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.android.material.textfield.TextInputLayout
+import com.vincnx.registration.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
-    private val tfUsernameL by lazy {findViewById<TextInputLayout>(R.id.tf_username_layout)}
-    private val tfUsername by lazy {findViewById<EditText>(R.id.tf_username)}
-    private val tfPwdL by lazy {findViewById<TextInputLayout>(R.id.tf_pwd_layout)}
-    private val tfPwd by lazy {findViewById<EditText>(R.id.tf_pwd)}
-    private val tfPwdConfL by lazy {findViewById<TextInputLayout>(R.id.tf_pwd_conf_layout)}
-    private val tfPwdConf by lazy {findViewById<EditText>(R.id.tf_pwd_conf)}
-    private val btnRegister by lazy {findViewById<Button>(R.id.btn_register)}
-    private var usernameErr: String? = null
-    private var pwdErr: String? = null
-    private var pwdConfErr: String? = null
+    lateinit var binding: ActivityMainBinding
+    private val viewModel by lazy { ViewModelProvider(this).get(MainViewModel::class.java) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-
         super.onCreate(savedInstanceState)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        val view = binding.root
+        setContentView(view)
         enableEdgeToEdge()
-        setContentView(R.layout.activity_main)
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
 
-        tfUsername.addTextChangedListener(object: TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-
-            override fun afterTextChanged(s: Editable?) {
-                usernameErr = null
-                if (s.isNullOrEmpty()) {
-                    usernameErr = "Field is required"
-                } else if (s.length < 5) {
-                    usernameErr = "Must be at least 5 characters"
-                }
-                tfUsernameL.error = usernameErr
-                tfUsernameL.isErrorEnabled = usernameErr != null
-            }
-        })
-
-        tfPwd.addTextChangedListener(object: TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-
-            override fun afterTextChanged(s: Editable?) {
-                pwdErr = null
-                if (s.isNullOrEmpty()) {
-                    pwdErr = "Field is required"
-                } else if (s.length < 6) {
-                    pwdErr = "Must be at least 6 characters"
-                } else if (s.length > 12) {
-                    pwdErr = "Maximum 12 character"
-                } else if (tfPwdConf.text.toString().isNotEmpty()) {
-                    pwdConfErr = if (s.toString() != tfPwdConf.text.toString()) {
-                        "Confirmation password not match"
-                    } else {
-                        null
-                    }
-                }
-                tfPwdL.error = pwdErr
-                tfPwdConfL.error = pwdConfErr
-                tfPwdL.isErrorEnabled = pwdErr != null
-                tfPwdConfL.isErrorEnabled = pwdConfErr != null
-            }
-        })
-
-        tfPwdConf.addTextChangedListener(object: TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-
-            override fun afterTextChanged(s: Editable?) {
-                pwdConfErr = null
-                if (s.isNullOrEmpty()) {
-                    pwdConfErr = "Field is required"
-                } else if (s.length < 6) {
-                    pwdConfErr = "Must be at least 6 characters"
-                } else if (s.length > 12) {
-                    pwdConfErr = "Maximum 12 character"
-                } else if (s.toString() != tfPwd.text.toString()) {
-                    pwdConfErr = "Confirmation password not match"
-                }
-                tfPwdConfL.error = pwdConfErr
-                tfPwdConfL.isErrorEnabled = pwdConfErr != null
-            }
-        })
-
-        btnRegister.setOnClickListener {
-            handleRegister()
+        binding.tfFname.doAfterTextChanged { editable ->
+            viewModel.setFname(editable.toString())
+            viewModel.validateFname(editable.toString())
+            binding.tfFnameLayout.error = viewModel.fnameErr.value
+            binding.tfFnameLayout.isErrorEnabled = !viewModel.fnameErr.value.isNullOrEmpty()
         }
 
+        binding.tfUsername.doAfterTextChanged { editable ->
+            viewModel.setUsername(editable.toString())
+            viewModel.validateUsername(editable.toString())
+            binding.tfUsernameLayout.error = viewModel.usernameErr.value
+            binding.tfUsernameLayout.isErrorEnabled = !viewModel.usernameErr.value.isNullOrEmpty()
+        }
+
+        binding.tfPwd.doAfterTextChanged { editable ->
+            viewModel.setPwd(editable.toString())
+            viewModel.validatePwd(editable.toString())
+            binding.tfPwdLayout.error = viewModel.pwdErr.value
+            binding.tfPwdLayout.isErrorEnabled = !viewModel.pwdErr.value.isNullOrEmpty()
+            if (viewModel.pwdConf.value.toString().isNotEmpty()) {
+                binding.tfPwdConfLayout.error = viewModel.pwdConfErr.value
+                binding.tfPwdConfLayout.isErrorEnabled = !viewModel.pwdConfErr.value.isNullOrEmpty()
+            }
+        }
+
+        binding.tfPwdConf.doAfterTextChanged { editable ->
+            viewModel.setPwdConf(editable.toString())
+            viewModel.validatePwdConf(editable.toString())
+            binding.tfPwdConfLayout.error = viewModel.pwdConfErr.value
+            binding.tfPwdConfLayout.isErrorEnabled = !viewModel.pwdConfErr.value.isNullOrEmpty()
+        }
+
+        binding.btnRegister.setOnClickListener {
+            handleRegister()
+        }
     }
 
     private fun handleRegister() {
 //        validate input
-        if (usernameErr != null || pwdErr != null || pwdConfErr != null) return
+        if (
+            !viewModel.fnameErr.value.isNullOrEmpty() ||
+            !viewModel.usernameErr.value.isNullOrEmpty() ||
+            !viewModel.pwdErr.value.isNullOrEmpty() ||
+            !viewModel.pwdConfErr.value.isNullOrEmpty()
+        ) return
 //        show dialog
         MaterialAlertDialogBuilder(this).apply {
             setTitle("Register Success")
@@ -121,11 +83,13 @@ class MainActivity : AppCompatActivity() {
             }
         }.show()
 //        remove all input
-        tfUsername.text?.clear()
-        tfPwd.text?.clear()
-        tfPwdConf.text?.clear()
-        tfUsernameL.isErrorEnabled = false
-        tfPwdL.isErrorEnabled = false
-        tfPwdConfL.isErrorEnabled = false
+        binding.tfFname.text?.clear()
+        binding.tfUsername.text?.clear()
+        binding.tfPwd.text?.clear()
+        binding.tfPwdConf.text?.clear()
+        binding.tfFnameLayout.isErrorEnabled = false
+        binding.tfUsernameLayout.isErrorEnabled = false
+        binding.tfPwdLayout.isErrorEnabled = false
+        binding.tfPwdConfLayout.isErrorEnabled = false
     }
 }
