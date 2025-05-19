@@ -1,5 +1,6 @@
 package com.vincnx.registration
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -62,15 +63,22 @@ class LoginActivity : AppCompatActivity() {
             !isFieldValid()
         ) return
 //        show dialog
-        MaterialAlertDialogBuilder(this).apply {
-            setTitle("Register Success")
-            setNegativeButton("Cancel") { dialog, _ ->
-                dialog.dismiss()
-            }
-        }.show()
+//        MaterialAlertDialogBuilder(this).apply {
+//            setTitle("Register Success")
+//            setNegativeButton("Cancel") { dialog, _ ->
+//                dialog.dismiss()
+//            }
+//        }.show()
+
+        val intent = Intent(this, HomeActivity::class.java)
+        intent.putExtra("key_fullname", fname)
+
 //        remove all input
         binding.tfUsername.text?.clear()
         binding.tfPwd.text?.clear()
+
+//        move to home page
+        startActivity(intent)
     }
 
     private fun isFieldValid(): Boolean {
