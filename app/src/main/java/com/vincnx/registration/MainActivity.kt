@@ -1,5 +1,6 @@
 package com.vincnx.registration
 
+import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -75,13 +76,18 @@ class MainActivity : AppCompatActivity() {
             !viewModel.pwdConfErr.value.isNullOrEmpty()
         ) return
 //        show dialog
-        MaterialAlertDialogBuilder(this).apply {
-            setTitle("Register Success")
-            setNegativeButton("Cancel") { dialog, _ ->
-                // User cancelled registration
-                dialog.dismiss()
-            }
-        }.show()
+//        MaterialAlertDialogBuilder(this).apply {
+//            setTitle("Register Success")
+//            setNegativeButton("Cancel") { dialog, _ ->
+//                // User cancelled registration
+//                dialog.dismiss()
+//            }
+//        }.show()
+        val intent = Intent(this, LoginActivity::class.java)
+        intent.putExtra("key_fullname", viewModel.fname.value)
+        intent.putExtra("key_username", viewModel.username.value)
+        intent.putExtra("key_password", viewModel.pwd.value)
+
 //        remove all input
         binding.tfFname.text?.clear()
         binding.tfUsername.text?.clear()
@@ -91,5 +97,8 @@ class MainActivity : AppCompatActivity() {
         binding.tfUsernameLayout.isErrorEnabled = false
         binding.tfPwdLayout.isErrorEnabled = false
         binding.tfPwdConfLayout.isErrorEnabled = false
+
+//        move to login other page
+        startActivity(intent)
     }
 }
